@@ -20,6 +20,8 @@ from shapely.geometry import LineString, Polygon  # noqa: E402
 from app import config  # noqa: E402
 
 OVERPASS = "https://overpass-api.de/api/interpreter"
+# Overpass rejects the default python-requests User-Agent with "406 Not Acceptable".
+HEADERS = {"User-Agent": "mangrove-dss/0.1 (mangrove research prototype; https://github.com/dreacy137/mangrove-dss)"}
 TILES = 3  # split the bbox into 3 x 3 tiles
 
 QUERIES = {
@@ -47,7 +49,9 @@ def fetch(filters, bbox):
     q = f"[out:json][timeout:180];({body});out geom;"
     for attempt in range(4):
         try:
-            r = requests.post(OVERPASS, data={"data": q}, timeout=240)
+            r = requests.post(OVERPASS, data={"data": q}, headers=HEADERS, timeout=240)
+            if r.status_code in (400, 403, 406):
+                raise RuntimeError(f"Overpass refused the request ({r.status_code}): {r.text[:300]}")
             if r.status_code in (429, 504):
                 raise requests.HTTPError(f"Overpass busy ({r.status_code})")
             r.raise_for_status()
