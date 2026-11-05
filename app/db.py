@@ -3,6 +3,7 @@ import json
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 
 from . import config
 
@@ -40,7 +41,9 @@ def now():
 
 @contextmanager
 def connect(path=None):
-    con = sqlite3.connect(path or config.DB_PATH)
+    db_file = Path(path or config.DB_PATH)
+    db_file.parent.mkdir(parents=True, exist_ok=True)  # data/ is not in git, so create it on first use
+    con = sqlite3.connect(db_file)
     con.row_factory = sqlite3.Row
     try:
         con.executescript(SCHEMA)
