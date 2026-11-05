@@ -87,6 +87,8 @@ def assess_polygon(coords: list) -> dict:
         verdict = "protect"
     elif suitable:
         verdict = "partly_suitable"
+    elif verdicts.get("uncertain", 0):
+        verdict = "uncertain"  # some points could not be judged, so "not suitable" would overstate it
     else:
         verdict = "not_suitable"
 
@@ -111,8 +113,10 @@ def assess_polygon(coords: list) -> dict:
         "reasons": reasons,
         "cautions": cautions,
         "species": species,
-        "priority": {"score": pr, "level": "High" if pr >= 70 else "Medium" if pr >= 40 else "Low",
-                     "parts": {"suitable_share": {"points": round(share * 100), "why": "Share of the area that is suitable, times the mean point score."}}},
+        "priority": None if not suitable else {
+            "score": pr, "level": "High" if pr >= 70 else "Medium" if pr >= 40 else "Low",
+            "parts": {"suitable_share": {"points": round(share * 100),
+                                         "why": "Share of the area that is suitable, times the mean point score."}}},
         "confidence": min((r["confidence"] for r in results), key=["low", "medium", "high"].index),
         "missing_layers": sorted({m for r in results for m in r["missing_layers"]}),
         "points": [{"lon": lon, "lat": lat, "verdict": r["verdict"]} for (lon, lat), r in zip(pts, results)],
