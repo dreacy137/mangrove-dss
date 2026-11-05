@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mangrove Decision Support System</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Mangrove Decision Support System</h1>
+      <p>Species and planting site assessment for mangrove rehabilitation · Iloilo study area</p>
+    </div>
+    <div id="status-pill" class="pill">Checking data…</div>
+  </header>
+
+  <main>
+    <aside>
+      <nav class="tabs">
+        <button data-tab="assess" class="active">Assess</button>
+        <button data-tab="sites">Sites</button>
+        <button data-tab="corrections">Corrections</button>
+        <button data-tab="module1">Species mapping</button>
+      </nav>
+
+      <!-- Assess -->
+      <section id="tab-assess" class="tab active">
+        <p class="hint">Click a spot on the map, or draw an area with the polygon tool (top left of the map), to check whether it is a good planting site and which species fit.</p>
+        <div id="result"></div>
+      </section>
+
+      <!-- Sites -->
+      <section id="tab-sites" class="tab">
+        <p class="hint">Candidate sites ranked by priority. Save a site from the Assess tab.</p>
+        <div id="sites"></div>
+      </section>
+
+      <!-- Corrections -->
+      <section id="tab-corrections" class="tab">
+        <p class="hint">Expert corrections are saved with the expert's name. They are used to calibrate the rules and, later, to retrain the species model.</p>
+        <div id="corrections"></div>
+      </section>
+
+      <!-- Module 1 -->
+      <section id="tab-module1" class="tab">
+        <h2>Species and vegetation mapping</h2>
+        <p class="hint">Upload a drone photo (RGB, taken straight down) to measure canopy coverage. Species identification will be added once the model is trained on labelled drone photos from the study sites.</p>
+        <label class="file">
+          <input type="file" id="canopy-file" accept="image/*">
+          <span>Choose drone photo</span>
+        </label>
+        <div id="canopy-result"></div>
+      </section>
+
+      <!-- Correction form (shared) -->
+      <dialog id="correct-dialog">
+        <form id="correct-form" method="dialog">
+          <h2>Correct this result</h2>
+          <label>Your name (expert)<input name="expert" required></label>
+          <label>Correct verdict
+            <select name="corrected_verdict">
+              <option value="">(no change)</option>
+              <option value="suitable">Suitable</option>
+              <option value="not_suitable">Not suitable</option>
+              <option value="protect">Protect existing mangrove</option>
+            </select>
+          </label>
+          <label>Correct species (comma separated)<input name="corrected_species" placeholder="e.g. Avicennia marina, Sonneratia alba"></label>
+          <label>Notes<textarea name="notes" rows="3" placeholder="What did you see in the field?"></textarea></label>
+          <div class="row">
+            <button type="button" id="correct-cancel" class="ghost">Cancel</button>
+            <button type="submit" id="correct-save">Save correction</button>
+          </div>
+        </form>
+      </dialog>
+    </aside>
+
+    <div id="map"></div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
