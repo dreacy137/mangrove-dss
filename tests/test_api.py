@@ -101,3 +101,14 @@ def test_canopy(client):
     Image.fromarray(img).save(buf, format="PNG")
     r = client.post("/api/canopy", files={"file": ("x.png", buf.getvalue(), "image/png")}).json()
     assert 55 <= r["canopy_cover_pct"] <= 65
+
+
+def test_area_with_only_mangrove_map_is_uncertain_not_unsuitable(client):
+    # Only GMW loaded (as right after 01_clip_gmw.py): points outside mangroves can't be judged.
+    for name in ("dem", "coast", "rivers", "roads"):
+        config.LAYERS[name].unlink()
+    factors.reload_layers()
+    ring = [[122.575, 10.698], [122.595, 10.698], [122.595, 10.710], [122.575, 10.710], [122.575, 10.698]]
+    a = client.post("/api/assess-area", json={"coordinates": ring}).json()
+    assert a["verdict"] == "uncertain"
+    assert a["priority"] is None
